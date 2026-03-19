@@ -1,0 +1,38 @@
+# Local dev overrides - auto-merged with compose.yml
+# Usage: docker compose up --build
+services:
+  # Local Traefik proxy
+  proxy:
+    image: traefik:v3.6
+    restart: "no"
+    ports:
+      - "80:80"
+      - "8090:8080"  # Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.http.address=:80
+      - --entrypoints.https.address=:443
+      - --accesslog=true
+      - --log=true
+      - --log.level=DEBUG
+      - --api=true
+      - --api.insecure=true
+    labels:
+      - traefik.enable=true
+      - traefik.http.middlewares.https-redirect.contenttype.autodetect=false
+    networks:
+      - traefik-public
+
+  web:
+    build: .
+    restart: "no"
+    ports:
+      - "3000:80"
+    labels: []
+
+networks:
+  traefik-public:
+    external: false
