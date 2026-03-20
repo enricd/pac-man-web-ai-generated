@@ -5,6 +5,9 @@ import {
   GHOST_HOUSE_WIDTH,
   GHOST_HOUSE_HEIGHT,
   CELL_SIZE,
+  MAZE_WIDTH,
+  GHOST_HOUSE_FLOOR_COLOR,
+  GHOST_HOUSE_DOOR_COLOR,
 } from '../../utils/constants';
 import { gridToWorld } from '../../utils/helpers';
 
@@ -20,28 +23,20 @@ export function GhostHouse() {
     };
   }, []);
 
+  const doorPos = useMemo(() => {
+    const [x, z] = gridToWorld({ row: GHOST_HOUSE_ROW - 1, col: Math.floor(MAZE_WIDTH / 2) });
+    return [x, 0.3, z] as [number, number, number];
+  }, []);
+
   return (
     <group>
-      {/* Ghost house floor */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={position} receiveShadow>
         <planeGeometry args={[width, height]} />
-        <meshStandardMaterial color="#1a1a3a" />
+        <meshStandardMaterial color={GHOST_HOUSE_FLOOR_COLOR} roughness={0.9} />
       </mesh>
-      {/* Ghost house door indicator */}
-      <mesh
-        position={[
-          ...gridToWorld({ row: GHOST_HOUSE_ROW - 1, col: Math.floor(28 / 2) }),
-        ].reduce<[number, number, number]>(
-          (acc, val, i) => {
-            if (i === 0) acc[0] = val;
-            else acc[2] = val;
-            return acc;
-          },
-          [0, 0.3, 0]
-        )}
-      >
+      <mesh position={doorPos} castShadow>
         <boxGeometry args={[CELL_SIZE, 0.3, CELL_SIZE * 0.3]} />
-        <meshStandardMaterial color="#FFB8FF" emissive="#FFB8FF" emissiveIntensity={0.3} />
+        <meshStandardMaterial color={GHOST_HOUSE_DOOR_COLOR} />
       </mesh>
     </group>
   );

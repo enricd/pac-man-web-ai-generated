@@ -27,19 +27,15 @@ function PowerPelletSingle({ row, col }: { row: number; col: number }) {
 
   useFrame(({ clock }) => {
     if (!meshRef.current) return;
-    // Pulsing effect
     const scale = 0.8 + Math.sin(clock.elapsedTime * 4) * 0.2;
-    meshRef.current.scale.setScalar(scale);
+    meshRef.current.scale.set(scale, scale, scale);
+    meshRef.current.rotation.set(Math.PI / 2, clock.elapsedTime * 2, 0);
   });
 
   return (
-    <mesh ref={meshRef} position={[x, 0.35, z]} castShadow>
-      <sphereGeometry args={[0.2, 12, 12]} />
-      <meshStandardMaterial
-        color={POWER_PELLET_COLOR}
-        emissive={POWER_PELLET_COLOR}
-        emissiveIntensity={0.8}
-      />
+    <mesh ref={meshRef} position={[x, 0.25, z]} castShadow>
+      <cylinderGeometry args={[0.22, 0.22, 0.06, 12]} />
+      <meshStandardMaterial color={POWER_PELLET_COLOR} metalness={0.3} roughness={0.3} emissive={POWER_PELLET_COLOR} emissiveIntensity={0.4} />
     </mesh>
   );
 }

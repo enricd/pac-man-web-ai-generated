@@ -119,10 +119,10 @@ pac-man-web-ai-generated/
 
 Modes cycle: Scatter (7s) → Chase (20s) → repeat. Power pellet triggers Frightened mode.
 
-### Camera (Isometric top-down)
-- Fixed ~60° angle from above, loosely follows Pac-Man with damping
-- Shows enough maze for gameplay while maintaining 3D feel
-- No camera toggle needed — isometric only
+### Camera (Fixed Isometric)
+- Fixed orthographic camera at [2, 10, 10], no movement/following
+- Auto-calculates zoom to fit entire 21x23 maze on screen
+- Less-steep angle chosen so arrow keys align more intuitively with screen directions
 
 ### Levels / Elevator
 - 10 floors (0-9), new maze each odd level
@@ -175,13 +175,22 @@ Modes cycle: Scatter (7s) → Chase (20s) → repeat. Power pellet triggers Frig
 - [x] Difficulty scaling: ghost speed +5%/level, power pellet duration decreases
 - [x] Max 10 levels, win condition
 
-### Phase 5: Polish — DONE (code written, needs playtesting)
+### Phase 5: Polish — IN PROGRESS
 - [x] Invisible wall logic on even levels (walls hidden, flash 100ms every 15s)
 - [x] `Teleporter.tsx` (edge glow visual effect)
-- [x] Lighting: ambient + directional + Pac-Man point light
+- [x] Lighting: ambient + directional with proper shadows
 - [x] `StartScreen.tsx` with blinking prompt
+- [x] Habbo Hotel / office building visual theme (pastel colors, blocky geometry, flat aesthetic)
+- [x] Fixed isometric camera (no movement, fits full maze on laptop screen)
+- [x] Reduced maze size (21x23 from 28x31) to fit laptop screens
+- [x] Near-white office walls, grey carpet floor (matching real office photo)
+- [x] Grass outdoor environment with trees and path
+- [x] Shadows: directional sun light with shadow maps
+- [x] Wall occlusion: walls between camera and Pac-Man auto-duck
+- [x] Single-step movement: tap = 1 cell, hold = continuous
+- [x] Bright pellets (green) and power pellets (red) for visibility on grey floor
+- [x] Ghost house exit bug fix (ghosts can now traverse ghost house cells)
 - [ ] **Playtesting & bug fixes** — verify all mechanics work correctly in-browser
-- [ ] Office theme refinement (wall colors/textures per floor)
 - [ ] Sound effects (optional)
 
 ### Phase 6: Multiplayer (Future — TODO)

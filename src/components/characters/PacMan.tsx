@@ -21,7 +21,7 @@ export function PacMan() {
       pacman.targetGridPos,
       pacman.moveProgress
     );
-    meshRef.current.position.set(x, 0.5, z);
+    meshRef.current.position.set(x, 0.35, z);
 
     // Rotation based on direction
     switch (pacman.direction) {
@@ -31,20 +31,16 @@ export function PacMan() {
       case 'down': meshRef.current.rotation.y = -Math.PI / 2; break;
     }
 
-    // Chomp animation
+    // Chomp animation — squash/stretch on X axis
     mouthRef.current += delta * 12;
-    const mouthOpen = (Math.sin(mouthRef.current) + 1) / 2; // 0..1
-    meshRef.current.scale.setScalar(0.9 + mouthOpen * 0.1);
+    const mouthOpen = (Math.sin(mouthRef.current) + 1) / 2;
+    meshRef.current.scale.set(0.85 + mouthOpen * 0.15, 1, 1);
   });
 
   return (
     <mesh ref={meshRef} castShadow>
-      <sphereGeometry args={[0.4, 16, 16]} />
-      <meshStandardMaterial
-        color={PACMAN_COLOR}
-        emissive={PACMAN_COLOR}
-        emissiveIntensity={0.3}
-      />
+      <boxGeometry args={[0.7, 0.7, 0.7]} />
+      <meshStandardMaterial color={PACMAN_COLOR} roughness={0.4} />
     </mesh>
   );
 }

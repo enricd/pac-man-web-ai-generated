@@ -39,8 +39,8 @@ export function generateMaze(seed?: number): MazeData {
   // Flood-fill validation and fix unreachable areas
   ensureAllPathsReachable(grid, pacmanSpawn);
 
-  // Place pellets and power pellets
-  const { pellets, powerPellets } = placePellets(grid);
+  // Place pellets and power pellets (70% coverage)
+  const { pellets, powerPellets } = placePellets(grid, rng);
 
   // Find teleport positions
   const { teleportLeft, teleportRight } = findTeleportPositions(grid);
@@ -164,12 +164,12 @@ function getUnvisitedNeighbors(
 }
 
 function addExtraPaths(grid: MazeGrid, halfWidth: number, rng: () => number): void {
-  // Remove ~30% of remaining walls to create more open corridors
+  // Remove ~18% of remaining walls — keeps maze denser with more walls
   for (let r = 1; r < MAZE_HEIGHT - 1; r++) {
     for (let c = 1; c < halfWidth; c++) {
       if (
         grid[r][c] === CellType.WALL &&
-        rng() < 0.3 &&
+        rng() < 0.18 &&
         !isAdjacentToGhostHouse(r, c)
       ) {
         // Only remove if it connects two paths
@@ -339,14 +339,14 @@ function connectToReachable(
   }
 }
 
-function placePellets(grid: MazeGrid): {
+function placePellets(grid: MazeGrid, rng: () => number): {
   pellets: GridPosition[];
   powerPellets: GridPosition[];
 } {
   const pellets: GridPosition[] = [];
   const powerPellets: GridPosition[] = [];
 
-  // Power pellets in corners
+  // Power pellets in corners (always placed)
   const corners: GridPosition[] = [
     { row: 1, col: 1 },
     { row: 1, col: MAZE_WIDTH - 2 },
@@ -364,7 +364,10 @@ function placePellets(grid: MazeGrid): {
       if (isCorner) {
         powerPellets.push({ row: r, col: c });
       } else {
-        pellets.push({ row: r, col: c });
+        // Only place pellets on 70% of path cells
+        if (rng() < 0.7) {
+          pellets.push({ row: r, col: c });
+        }
       }
     }
   }

@@ -1,12 +1,12 @@
 import { create } from 'zustand';
 import type { GameState, GamePhase, Direction, GhostState, GhostName } from '../types/game';
-import type { MazeData } from '../types/maze';
+import type { MazeData, MazeGrid } from '../types/maze';
 import { generateMaze } from '../systems/mazeGenerator';
 import {
   STARTING_LIVES,
   GHOST_RELEASE_TIMES,
   GHOST_SCATTER_TARGETS,
-  GHOST_SPEED,
+  GHOST_BASE_SPEED,
   GHOST_SPEED_INCREASE_PER_LEVEL,
   GHOST_FRIGHTENED_SPEED,
   GHOST_EATEN_SPEED,
@@ -27,10 +27,12 @@ interface GameStore extends GameState {
   pelletSet: Set<string>;
   powerPelletSet: Set<string>;
   previousMaze: MazeData | null;
+  completedFloors: MazeGrid[];
 
   // Actions
   startGame: () => void;
   setDirection: (dir: Direction) => void;
+  clearDirection: () => void;
   tick: (delta: number) => void;
   restartGame: () => void;
   nextLevel: () => void;
@@ -57,6 +59,10 @@ function createPelletSets(mazeData: MazeData): { pelletSet: Set<string>; powerPe
   const pelletSet = new Set(mazeData.pellets.map(p => `${p.row},${p.col}`));
   const powerPelletSet = new Set(mazeData.powerPellets.map(p => `${p.row},${p.col}`));
   return { pelletSet, powerPelletSet };
+}
+
+function getGhostSpeed(level: number): number {
+  return GHOST_BASE_SPEED + (level - 1) * GHOST_SPEED_INCREASE_PER_LEVEL;
 }
 
 const initialMaze = generateMaze();
@@ -88,6 +94,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   pelletSet: initialPellets.pelletSet,
   powerPelletSet: initialPellets.powerPelletSet,
   previousMaze: null,
+  completedFloors: [],
 
   startGame: () => {
     set({ phase: 'playing' });
@@ -104,13 +111,24 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }));
   },
 
+  clearDirection: () => {
+    const state = get();
+    if (state.phase !== 'playing') return;
+    set(s => ({
+      pacman: {
+        ...s.pacman,
+        nextDirection: 'none',
+      },
+    }));
+  },
+
   tick: (delta: number) => {
     const state = get();
     if (state.phase !== 'playing') return;
 
     const { mazeData, pacman, ghosts, pelletSet, powerPelletSet } = state;
     const grid = mazeData.grid;
-    const levelMultiplier = 1 + (state.level - 1) * GHOST_SPEED_INCREASE_PER_LEVEL;
+    const ghostSpeed = getGhostSpeed(state.level);
 
     // Update Pac-Man movement
     const newPacman = updateCharacterMovement(
@@ -134,8 +152,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       if (isInGhostHouse(ghost.gridPos)) {
         const exitDir = getGhostHouseExitDirection(ghost.gridPos);
         const exitGhost = { ...ghost, nextDirection: exitDir };
-        const speed = GHOST_SPEED * levelMultiplier;
-        return updateCharacterMovement(exitGhost, grid, speed, delta) as GhostState;
+        const moved = updateCharacterMovement(exitGhost, grid, ghostSpeed, delta, false, true);
+        return { ...ghost, ...moved } as GhostState;
       }
 
       // Choose direction at cell centers
@@ -147,7 +165,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
 
       // Determine speed
-      let speed = GHOST_SPEED * levelMultiplier;
+      let speed = ghostSpeed;
       if (ghost.mode === 'frightened') speed = GHOST_FRIGHTENED_SPEED;
       if (ghost.mode === 'eaten') speed = GHOST_EATEN_SPEED;
 
@@ -168,14 +186,23 @@ export const useGameStore = create<GameStore>((set, get) => ({
       state
     );
 
-    // Apply pellet removals
-    const newPelletSet = new Set(pelletSet);
-    const newPowerPelletSet = new Set(powerPelletSet);
-    for (const p of collisionResult.pelletsToRemove) {
-      newPelletSet.delete(`${p.row},${p.col}`);
+    // Only create new Sets when pellets were actually removed (fixes freeze bug)
+    let newPelletSet = pelletSet;
+    let newPowerPelletSet = powerPelletSet;
+    const pelletsChanged = collisionResult.pelletsToRemove.length > 0;
+    const powerPelletsChanged = collisionResult.powerPelletsToRemove.length > 0;
+
+    if (pelletsChanged) {
+      newPelletSet = new Set(pelletSet);
+      for (const p of collisionResult.pelletsToRemove) {
+        newPelletSet.delete(`${p.row},${p.col}`);
+      }
     }
-    for (const p of collisionResult.powerPelletsToRemove) {
-      newPowerPelletSet.delete(`${p.row},${p.col}`);
+    if (powerPelletsChanged) {
+      newPowerPelletSet = new Set(powerPelletSet);
+      for (const p of collisionResult.powerPelletsToRemove) {
+        newPowerPelletSet.delete(`${p.row},${p.col}`);
+      }
     }
 
     // Apply ghost mode updates
@@ -206,6 +233,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
           moveProgress: 0,
         },
         ghosts: createInitialGhosts(mazeData),
+        pelletSet: newPelletSet,
+        powerPelletSet: newPowerPelletSet,
+        score: state.score + collisionResult.score,
         powerPelletActive: false,
         powerPelletTimer: 0,
         elapsedTime: 0,
@@ -221,7 +251,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     // Update timers
-    let newElapsed = state.elapsedTime + delta;
+    const newElapsed = state.elapsedTime + delta;
     let newModeTimer = state.modeTimer + delta;
     let newIsScatter = state.isScatterMode;
     let newPowerActive = collisionResult.powerPelletActive;
@@ -233,7 +263,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
       if (newPowerTimer <= 0) {
         newPowerActive = false;
         newPowerTimer = 0;
-        // Revert frightened ghosts to current mode
         for (const g of finalGhosts) {
           if (g.mode === 'frightened') {
             g.mode = newIsScatter ? 'scatter' : 'chase';
@@ -247,7 +276,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (newModeTimer >= modeDuration) {
       newIsScatter = !newIsScatter;
       newModeTimer = 0;
-      // Update non-frightened, non-eaten ghosts
       for (const g of finalGhosts) {
         if (g.mode !== 'frightened' && g.mode !== 'eaten') {
           g.mode = newIsScatter ? 'scatter' : 'chase';
@@ -311,14 +339,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
       return;
     }
 
-    // Odd levels: new maze. Even levels: reuse previous maze
+    // Save current floor's grid for rendering below
+    const completedFloors = [...state.completedFloors, state.mazeData.grid];
+
     let newMaze: MazeData;
     let previousMaze = state.previousMaze;
     if (newLevel % 2 === 1) {
       newMaze = generateMaze();
       previousMaze = newMaze;
     } else {
-      // Even level: reuse the previous odd level's maze
       newMaze = previousMaze ?? generateMaze();
     }
 
@@ -329,6 +358,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       level: newLevel,
       mazeData: newMaze,
       previousMaze,
+      completedFloors,
       pacman: {
         gridPos: { ...newMaze.pacmanSpawn },
         targetGridPos: { ...newMaze.pacmanSpawn },
@@ -361,6 +391,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       lives: STARTING_LIVES,
       mazeData: newMaze,
       previousMaze: null,
+      completedFloors: [],
       pacman: {
         gridPos: { ...newMaze.pacmanSpawn },
         targetGridPos: { ...newMaze.pacmanSpawn },

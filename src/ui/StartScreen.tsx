@@ -7,18 +7,18 @@ export function StartScreen() {
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      color: '#FFFF00',
+      color: '#4A4A4A',
       fontFamily: '"Press Start 2P", "Courier New", monospace',
       zIndex: 20,
-      background: 'rgba(0,0,0,0.7)',
+      background: 'rgba(240, 235, 227, 0.85)',
     }}>
-      <h1 style={{ fontSize: '36px', marginBottom: '20px', textShadow: '0 0 20px #FFFF00' }}>
-        3D PAC-MAN
+      <h1 style={{ fontSize: '42px', marginBottom: '20px', color: '#043184' }}>
+        The ERNI Office PAC-MAN
       </h1>
-      <p style={{ fontSize: '14px', color: '#fff', marginBottom: '10px' }}>
+      <p style={{ fontSize: '18px', color: '#6d6c6c', marginBottom: '10px' }}>
         Office Building Edition
       </p>
-      <p style={{ fontSize: '12px', color: '#aaa', animation: 'blink 1.5s infinite' }}>
+      <p style={{ fontSize: '18px', color: '#6d6c6c', animation: 'blink 1.5s infinite' }}>
         Press ARROW KEY or SPACE to start
       </p>
       <style>{`

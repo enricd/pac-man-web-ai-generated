@@ -6,6 +6,7 @@ import { GameOverScreen } from './ui/GameOverScreen';
 import { LevelTransition } from './ui/LevelTransition';
 import { useKeyboard } from './hooks/useKeyboard';
 import { useGameStore } from './stores/gameStore';
+import { BACKGROUND_COLOR, CAMERA_POSITION, CAMERA_ZOOM } from './utils/constants';
 
 function App() {
   useKeyboard();
@@ -15,8 +16,14 @@ function App() {
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
       <Canvas
         shadows
-        camera={{ position: [0, 22, 8], fov: 50, near: 0.1, far: 100 }}
-        style={{ background: '#000' }}
+        orthographic
+        camera={{
+          position: [CAMERA_POSITION[0], CAMERA_POSITION[1], CAMERA_POSITION[2]],
+          zoom: CAMERA_ZOOM,
+          near: 0.1,
+          far: 200,
+        }}
+        style={{ background: BACKGROUND_COLOR }}
       >
         <Game />
       </Canvas>

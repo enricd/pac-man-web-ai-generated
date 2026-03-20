@@ -13,7 +13,8 @@ export function updateCharacterMovement(
   grid: MazeGrid,
   speed: number,
   delta: number,
-  allowReverse: boolean = false
+  allowReverse: boolean = false,
+  allowGhostHouse: boolean = false
 ): CharacterState {
   let { gridPos, targetGridPos, direction, nextDirection, moveProgress } = state;
 
@@ -24,13 +25,16 @@ export function updateCharacterMovement(
     moveProgress = 0;
 
     // Try next direction first
-    if (nextDirection !== 'none' && canMove(gridPos, nextDirection, grid)) {
+    if (nextDirection !== 'none' && canMove(gridPos, nextDirection, grid, allowGhostHouse)) {
       direction = nextDirection;
       nextDirection = 'none';
+    } else if (nextDirection === 'none' && allowReverse) {
+      // Player released key — stop at this cell (only for Pac-Man, not ghosts)
+      direction = 'none';
     }
 
     // Try current direction
-    if (direction !== 'none' && canMove(gridPos, direction, grid)) {
+    if (direction !== 'none' && canMove(gridPos, direction, grid, allowGhostHouse)) {
       const offset = directionToOffset(direction);
       targetGridPos = {
         row: gridPos.row + offset.row,
@@ -64,7 +68,12 @@ export function updateCharacterMovement(
   return { gridPos, targetGridPos, direction, nextDirection, moveProgress };
 }
 
-export function canMove(pos: GridPosition, dir: Direction, grid: MazeGrid): boolean {
+export function canMove(
+  pos: GridPosition,
+  dir: Direction,
+  grid: MazeGrid,
+  allowGhostHouse: boolean = false
+): boolean {
   if (dir === 'none') return false;
   const offset = directionToOffset(dir);
   let nr = pos.row + offset.row;
@@ -76,7 +85,11 @@ export function canMove(pos: GridPosition, dir: Direction, grid: MazeGrid): bool
   if (nr < 0 || nr >= MAZE_HEIGHT) return false;
 
   const cell = grid[nr][nc];
-  return cell === CellType.PATH || cell === CellType.GHOST_DOOR;
+  if (cell === CellType.PATH) return true;
+  if (cell === CellType.GHOST_DOOR) return true;
+  if (cell === CellType.GHOST_HOUSE && allowGhostHouse) return true;
+
+  return false;
 }
 
 function wrapPosition(pos: GridPosition): GridPosition {

@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import type { Mesh } from 'three';
+import * as THREE from 'three';
 import { useGameStore } from '../../stores/gameStore';
 import { lerpGridToWorld } from '../../utils/helpers';
 import { GHOST_COLORS, GHOST_FRIGHTENED_COLOR, GHOST_EATEN_COLOR } from '../../utils/constants';
@@ -27,24 +28,23 @@ export function Ghost({ index, name }: GhostProps) {
       ghost.targetGridPos,
       ghost.moveProgress
     );
-    meshRef.current.position.set(x, 0.5, z);
+    meshRef.current.position.set(x, 0.4, z);
 
     // Color based on mode
     const material = meshRef.current.material as THREE.MeshStandardMaterial;
     switch (ghost.mode) {
       case 'frightened':
         material.color.set(GHOST_FRIGHTENED_COLOR);
-        material.emissive.set(GHOST_FRIGHTENED_COLOR);
+        material.opacity = 1;
+        material.transparent = false;
         break;
       case 'eaten':
         material.color.set(GHOST_EATEN_COLOR);
-        material.emissive.set(GHOST_EATEN_COLOR);
         material.opacity = 0.3;
         material.transparent = true;
         break;
       default:
         material.color.set(baseColor);
-        material.emissive.set(baseColor);
         material.opacity = 1;
         material.transparent = false;
     }
@@ -52,17 +52,8 @@ export function Ghost({ index, name }: GhostProps) {
 
   return (
     <mesh ref={meshRef} castShadow>
-      {/* Ghost body: cylinder + half sphere on top */}
-      <capsuleGeometry args={[0.35, 0.3, 8, 16]} />
-      <meshStandardMaterial
-        color={baseColor}
-        emissive={baseColor}
-        emissiveIntensity={0.2}
-      />
+      <boxGeometry args={[0.65, 0.85, 0.65]} />
+      <meshStandardMaterial color={baseColor} roughness={0.4} />
     </mesh>
   );
 }
-
-// Need THREE import for type assertion in useFrame
-import * as THREE from 'three';
-void THREE;

@@ -1,7 +1,7 @@
-// Teleporter visual effect — edge glow where teleport corridors exist
 import { useMemo } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import { gridToWorld } from '../../utils/helpers';
+import { TELEPORTER_COLOR } from '../../utils/constants';
 
 export function Teleporter() {
   const mazeData = useGameStore(s => s.mazeData);
@@ -25,9 +25,7 @@ export function Teleporter() {
         <mesh key={i} position={pos}>
           <planeGeometry args={[0.1, 1]} />
           <meshStandardMaterial
-            color="#00FFFF"
-            emissive="#00FFFF"
-            emissiveIntensity={1}
+            color={TELEPORTER_COLOR}
             transparent
             opacity={0.5}
           />

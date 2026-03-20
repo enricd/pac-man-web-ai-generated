@@ -16,21 +16,21 @@ export function GameOverScreen() {
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      color: isWin ? '#00FF00' : '#FF0000',
+      color: isWin ? '#27AE60' : '#E55039',
       fontFamily: '"Press Start 2P", "Courier New", monospace',
       zIndex: 20,
-      background: 'rgba(0,0,0,0.8)',
+      background: 'rgba(240, 235, 227, 0.9)',
     }}>
       <h1 style={{ fontSize: '32px', marginBottom: '20px' }}>
         {isWin ? 'YOU WIN!' : 'GAME OVER'}
       </h1>
-      <p style={{ fontSize: '16px', color: '#FFFF00', marginBottom: '10px' }}>
+      <p style={{ fontSize: '16px', color: '#F7B731', marginBottom: '10px' }}>
         SCORE: {score.toString().padStart(6, '0')}
       </p>
-      <p style={{ fontSize: '12px', color: '#aaa', marginBottom: '20px' }}>
+      <p style={{ fontSize: '12px', color: '#999', marginBottom: '20px' }}>
         Reached Floor {level}
       </p>
-      <p style={{ fontSize: '12px', color: '#aaa', animation: 'blink 1.5s infinite' }}>
+      <p style={{ fontSize: '12px', color: '#999', animation: 'blink 1.5s infinite' }}>
         Press SPACE to restart
       </p>
       <style>{`
