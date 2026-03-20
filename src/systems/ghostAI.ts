@@ -17,7 +17,7 @@ export function chooseGhostDirection(
   grid: MazeGrid
 ): Direction {
   if (ghost.mode === 'eaten') {
-    return moveTowardsTarget(ghost, getGhostHouseDoor(), grid, true);
+    return moveTowardsTargetBFS(ghost, getGhostHouseCenter(), grid);
   }
 
   if (ghost.mode === 'frightened') {
@@ -123,6 +123,55 @@ function moveTowardsTarget(
   return bestDir;
 }
 
+/**
+ * BFS pathfinding for eaten ghosts — finds the true shortest path to the ghost house door,
+ * avoiding dead ends that greedy best-first would get stuck in.
+ */
+function moveTowardsTargetBFS(
+  ghost: GhostState,
+  target: GridPosition,
+  grid: MazeGrid,
+): Direction {
+  const start = ghost.targetGridPos;
+
+  // BFS to find shortest path
+  const visited = new Set<string>();
+  const queue: { pos: GridPosition; firstDir: Direction }[] = [];
+  visited.add(`${start.row},${start.col}`);
+
+  // Seed with all valid first moves
+  for (const dir of ALL_DIRECTIONS) {
+    if (canMoveGhost(start, dir, grid, true)) {
+      const offset = directionToOffset(dir);
+      const nextPos = { row: start.row + offset.row, col: start.col + offset.col };
+      const key = `${nextPos.row},${nextPos.col}`;
+      if (!visited.has(key)) {
+        visited.add(key);
+        if (nextPos.row === target.row && nextPos.col === target.col) return dir;
+        queue.push({ pos: nextPos, firstDir: dir });
+      }
+    }
+  }
+
+  while (queue.length > 0) {
+    const { pos, firstDir } = queue.shift()!;
+    for (const dir of ALL_DIRECTIONS) {
+      if (canMoveGhost(pos, dir, grid, true)) {
+        const offset = directionToOffset(dir);
+        const nextPos = { row: pos.row + offset.row, col: pos.col + offset.col };
+        const key = `${nextPos.row},${nextPos.col}`;
+        if (visited.has(key)) continue;
+        visited.add(key);
+        if (nextPos.row === target.row && nextPos.col === target.col) return firstDir;
+        queue.push({ pos: nextPos, firstDir });
+      }
+    }
+  }
+
+  // Fallback: greedy if BFS finds nothing (shouldn't happen)
+  return moveTowardsTarget(ghost, target, grid, true);
+}
+
 function chooseFrightenedDirection(ghost: GhostState, grid: MazeGrid): Direction {
   const pos = ghost.targetGridPos;
   const reverse = oppositeDirection(ghost.direction);
@@ -171,6 +220,20 @@ function getGhostHouseDoor(): GridPosition {
     row: GHOST_HOUSE_ROW - 1,
     col: Math.floor(MAZE_WIDTH / 2),
   };
+}
+
+/** Target inside the ghost house for eaten ghosts to path towards. */
+function getGhostHouseCenter(): GridPosition {
+  return {
+    row: GHOST_HOUSE_ROW + 1,
+    col: Math.floor(MAZE_WIDTH / 2),
+  };
+}
+
+/** Check if a position is at the ghost house door. */
+export function isAtGhostDoor(pos: GridPosition): boolean {
+  const door = getGhostHouseDoor();
+  return pos.row === door.row && pos.col === door.col;
 }
 
 /** Check if a ghost is inside the ghost house. */

@@ -164,12 +164,12 @@ function getUnvisitedNeighbors(
 }
 
 function addExtraPaths(grid: MazeGrid, halfWidth: number, rng: () => number): void {
-  // Remove ~18% of remaining walls — keeps maze denser with more walls
+  // Remove ~23% of remaining walls for a slightly more open maze
   for (let r = 1; r < MAZE_HEIGHT - 1; r++) {
     for (let c = 1; c < halfWidth; c++) {
       if (
         grid[r][c] === CellType.WALL &&
-        rng() < 0.18 &&
+        rng() < 0.23 &&
         !isAdjacentToGhostHouse(r, c)
       ) {
         // Only remove if it connects two paths

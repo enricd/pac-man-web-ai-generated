@@ -16,10 +16,11 @@ import {
   INVISIBLE_WALL_FLASH_INTERVAL,
   INVISIBLE_WALL_FLASH_DURATION,
   MAX_LEVEL,
+  GHOST_EATEN_RESPAWN_TIMEOUT,
 } from '../utils/constants';
 import { updateCharacterMovement } from '../systems/movement';
 import { checkCollisions } from '../systems/collision';
-import { chooseGhostDirection, isInGhostHouse, getGhostHouseExitDirection } from '../systems/ghostAI';
+import { chooseGhostDirection, isInGhostHouse, isAtGhostDoor, getGhostHouseExitDirection } from '../systems/ghostAI';
 import { gridEqual } from '../utils/helpers';
 
 interface GameStore extends GameState {
@@ -31,6 +32,8 @@ interface GameStore extends GameState {
 
   // Actions
   startGame: () => void;
+  pauseGame: () => void;
+  resumeGame: () => void;
   setDirection: (dir: Direction) => void;
   clearDirection: () => void;
   tick: (delta: number) => void;
@@ -52,6 +55,7 @@ function createInitialGhosts(mazeData: MazeData): GhostState[] {
     scatterTarget: GHOST_SCATTER_TARGETS[name],
     releaseTime: GHOST_RELEASE_TIMES[name],
     frightenedTimer: 0,
+    eatenTimer: 0,
   }));
 }
 
@@ -98,6 +102,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   startGame: () => {
     set({ phase: 'playing' });
+  },
+
+  pauseGame: () => {
+    const state = get();
+    if (state.phase === 'playing') {
+      set({ phase: 'paused' });
+    }
+  },
+
+  resumeGame: () => {
+    const state = get();
+    if (state.phase === 'paused') {
+      set({ phase: 'playing' });
+    }
   },
 
   setDirection: (dir: Direction) => {
@@ -148,8 +166,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         return { ...ghost };
       }
 
-      // Ghost exiting house
-      if (isInGhostHouse(ghost.gridPos)) {
+      // Ghost exiting house (not eaten ghosts — they're heading home)
+      if (isInGhostHouse(ghost.gridPos) && ghost.mode !== 'eaten') {
         const exitDir = getGhostHouseExitDirection(ghost.gridPos);
         const exitGhost = { ...ghost, nextDirection: exitDir };
         const moved = updateCharacterMovement(exitGhost, grid, ghostSpeed, delta, false, true);
@@ -283,10 +301,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
     }
 
-    // Eaten ghosts that reached ghost house — respawn
+    // Eaten ghosts: track timer and respawn when reaching home or after timeout
     for (const g of finalGhosts) {
-      if (g.mode === 'eaten' && isInGhostHouse(g.gridPos)) {
-        g.mode = newIsScatter ? 'scatter' : 'chase';
+      if (g.mode === 'eaten') {
+        g.eatenTimer += delta;
+        if (isInGhostHouse(g.gridPos) || isAtGhostDoor(g.gridPos) || g.eatenTimer >= GHOST_EATEN_RESPAWN_TIMEOUT) {
+          g.mode = newIsScatter ? 'scatter' : 'chase';
+          g.eatenTimer = 0;
+        }
       }
     }
 

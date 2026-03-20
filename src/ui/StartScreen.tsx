@@ -16,7 +16,7 @@ export function StartScreen() {
         The ERNI Office PAC-MAN
       </h1>
       <p style={{ fontSize: '18px', color: '#6d6c6c', marginBottom: '10px' }}>
-        Office Building Edition
+        Get to the top, don't be a loser!
       </p>
       <p style={{ fontSize: '18px', color: '#6d6c6c', animation: 'blink 1.5s infinite' }}>
         Press ARROW KEY or SPACE to start

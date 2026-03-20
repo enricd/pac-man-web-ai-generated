@@ -28,6 +28,9 @@ export function useKeyboard(): void {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't capture game keys while piano overlay is open
+      if (phase === 'paused') return;
+
       const dir = KEY_MAP[e.key];
       if (dir) {
         e.preventDefault();

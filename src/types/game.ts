@@ -4,7 +4,7 @@ export type Direction = 'up' | 'down' | 'left' | 'right' | 'none';
 
 export type GhostMode = 'scatter' | 'chase' | 'frightened' | 'eaten';
 
-export type GamePhase = 'start' | 'playing' | 'dying' | 'levelTransition' | 'gameOver';
+export type GamePhase = 'start' | 'playing' | 'paused' | 'dying' | 'levelTransition' | 'gameOver';
 
 export interface CharacterState {
   gridPos: GridPosition;
@@ -20,6 +20,7 @@ export interface GhostState extends CharacterState {
   scatterTarget: GridPosition;
   releaseTime: number; // seconds after level start
   frightenedTimer: number;
+  eatenTimer: number; // seconds since entering eaten mode
 }
 
 export type GhostName = 'blinky' | 'pinky' | 'inky' | 'clyde';

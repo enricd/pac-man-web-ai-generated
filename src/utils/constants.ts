@@ -17,6 +17,7 @@ export const GHOST_BASE_SPEED = 3.0; // slower base speed for early levels
 export const GHOST_SPEED_INCREASE_PER_LEVEL = 0.25; // ramps up per level
 export const GHOST_FRIGHTENED_SPEED = 2.0;
 export const GHOST_EATEN_SPEED = 10;
+export const GHOST_EATEN_RESPAWN_TIMEOUT = 5; // seconds — respawn even if ghost didn't reach home
 
 // Timers (seconds)
 export const SCATTER_DURATION = 7;
@@ -60,14 +61,14 @@ export const GHOST_SCATTER_TARGETS: Record<string, GridPosition> = {
 export const GHOST_COLORS: Record<string, string> = {
   blinky: '#E55039',
   pinky: '#F8A5C2',
-  inky: '#7ED6DF',
+  inky: '#26A69A',
   clyde: '#F7B731',
 };
-export const GHOST_FRIGHTENED_COLOR = '#778BEB';
+export const GHOST_FRIGHTENED_COLOR = '#9597d8';
 export const GHOST_EATEN_COLOR = '#CCCCCC';
 
-// Pac-Man color (bright orange-yellow, high contrast on grey)
-export const PACMAN_COLOR = '#FF9F1C';
+// Pac-Man color (light cyan blue)
+export const PACMAN_COLOR = '#4FC3F7';
 
 // Wall/floor colors — bright white walls, darker carpet floor for contrast
 export const WALL_COLOR = '#F5F5F5';
@@ -92,10 +93,13 @@ export const GRASS_DARK_COLOR = '#689F38';
 export const PATH_COLOR = '#D7CCC8';
 export const TREE_TRUNK_COLOR = '#795548';
 export const TREE_LEAVES_COLOR = '#4CAF50';
+export const PARKING_LOT_COLOR = '#616161';
+export const PARKING_LINE_COLOR = '#E0E0E0';
+export const CAR_COLORS = ['#D32F2F', '#E8E4DE', '#388E3C', '#F9A825', '#5D4037', '#7B1FA2', '#FFFFFF', '#212121'];
 
 // Camera (fixed isometric, no movement)
 export const CAMERA_POSITION = [2, 10, 10] as const;
-export const CAMERA_ZOOM = 56;
+export const CAMERA_ZOOM = 22;
 
 // Wall geometry
 export const WALL_HEIGHT = 1.0;
