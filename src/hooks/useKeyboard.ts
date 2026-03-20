@@ -28,17 +28,13 @@ export function useKeyboard(): void {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't capture game keys while piano overlay is open
+      // Don't capture game keys while piano overlay is open or on start screen
       if (phase === 'paused') return;
+      if (phase === 'start') return; // Start screen uses Enter via the input
 
       const dir = KEY_MAP[e.key];
       if (dir) {
         e.preventDefault();
-        if (phase === 'start') {
-          if (useGameStore.getState().username) {
-            startGame();
-          }
-        }
 
         // If this key is already held (repeat event), check if hold duration exceeds threshold
         if (heldKeyRef.current === e.key) {
@@ -65,10 +61,6 @@ export function useKeyboard(): void {
         e.preventDefault();
         if (phase === 'gameOver') {
           restartGame();
-        } else if (phase === 'start') {
-          if (useGameStore.getState().username) {
-            startGame();
-          }
         }
       }
 

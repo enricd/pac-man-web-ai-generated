@@ -16,10 +16,9 @@ export function GameOverScreen() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchLeaderboard().then(data => {
-      setScores(data);
-      setLoading(false);
-    });
+    fetchLeaderboard()
+      .then(data => setScores(data))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -41,13 +40,13 @@ export function GameOverScreen() {
       <p style={{ fontSize: '16px', color: '#F7B731', marginBottom: '10px' }}>
         SCORE: {score.toString().padStart(6, '0')}
       </p>
-      <p style={{ fontSize: '12px', color: '#999', marginBottom: '20px' }}>
+      <p style={{ fontSize: '14px', color: '#999', marginBottom: '20px' }}>
         Reached Floor {level}
       </p>
 
       <Leaderboard scores={scores} loading={loading} highlightUsername={username} />
 
-      <p style={{ fontSize: '12px', color: '#999', animation: 'blink 1.5s infinite', marginTop: '15px' }}>
+      <p style={{ fontSize: '14px', color: '#999', animation: 'blink 1.5s infinite', marginTop: '15px' }}>
         Press SPACE to restart
       </p>
       <style>{`

@@ -9,7 +9,7 @@ interface LeaderboardProps {
 export function Leaderboard({ scores, loading, highlightUsername }: LeaderboardProps) {
   if (loading) {
     return (
-      <p style={{ fontSize: '10px', color: '#999', marginTop: '10px' }}>
+      <p style={{ fontSize: '14px', color: '#999', marginTop: '10px' }}>
         Loading leaderboard...
       </p>
     );
@@ -17,7 +17,7 @@ export function Leaderboard({ scores, loading, highlightUsername }: LeaderboardP
 
   if (scores.length === 0) {
     return (
-      <p style={{ fontSize: '10px', color: '#999', marginTop: '10px' }}>
+      <p style={{ fontSize: '14px', color: '#999', marginTop: '10px' }}>
         No scores yet. Be the first!
       </p>
     );
@@ -34,7 +34,7 @@ export function Leaderboard({ scores, loading, highlightUsername }: LeaderboardP
       <table style={{
         width: '100%',
         borderCollapse: 'collapse',
-        fontSize: '10px',
+        fontSize: '12px',
         fontFamily: '"Press Start 2P", "Courier New", monospace',
       }}>
         <thead>

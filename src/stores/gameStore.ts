@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { GameState, GamePhase, Direction, GhostState, GhostName } from '../types/game';
 import type { MazeData, MazeGrid } from '../types/maze';
-import { submitScore } from '../api/leaderboard';
+import { submitScore, fetchLeaderboard, type ScoreResponse } from '../api/leaderboard';
 import { generateMaze } from '../systems/mazeGenerator';
 import {
   STARTING_LIVES,
@@ -32,8 +32,10 @@ interface GameStore extends GameState {
   completedFloors: MazeGrid[];
   username: string;
   gameStartTime: number | null;
+  leaderboardTop5: ScoreResponse[];
 
   // Actions
+  refreshLeaderboard: () => void;
   startGame: () => void;
   pauseGame: () => void;
   resumeGame: () => void;
@@ -105,6 +107,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
   completedFloors: [],
   username: '',
   gameStartTime: null,
+  leaderboardTop5: [],
+
+  refreshLeaderboard: () => {
+    fetchLeaderboard(5).then(data => set({ leaderboardTop5: data }));
+  },
 
   setUsername: (name: string) => {
     set({ username: name });
@@ -112,6 +119,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   startGame: () => {
     set({ phase: 'playing', gameStartTime: Date.now() });
+    get().refreshLeaderboard();
   },
 
   pauseGame: () => {
@@ -404,6 +412,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     const pellets = createPelletSets(newMaze);
 
+    get().refreshLeaderboard();
+
     set({
       phase: 'playing',
       level: newLevel,
@@ -465,3 +475,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
     });
   },
 }));
+
+// Fetch leaderboard on app load so the billboard has data immediately
+useGameStore.getState().refreshLeaderboard();

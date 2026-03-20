@@ -9,6 +9,7 @@ const MAX_LENGTH = 16;
 
 export function StartScreen() {
   const setUsername = useGameStore(s => s.setUsername);
+  const startGame = useGameStore(s => s.startGame);
   const [inputValue, setInputValue] = useState('');
   const [scores, setScores] = useState<ScoreResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,10 +20,9 @@ export function StartScreen() {
       setInputValue(saved);
       setUsername(saved);
     }
-    fetchLeaderboard().then(data => {
-      setScores(data);
-      setLoading(false);
-    });
+    fetchLeaderboard()
+      .then(data => setScores(data))
+      .finally(() => setLoading(false));
   }, [setUsername]);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -30,6 +30,13 @@ export function StartScreen() {
     setInputValue(cleaned);
     localStorage.setItem(USERNAME_KEY, cleaned);
     setUsername(cleaned);
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter' && inputValue.length > 0) {
+      e.preventDefault();
+      startGame();
+    }
   }
 
   const hasUsername = inputValue.length > 0;
@@ -55,13 +62,14 @@ export function StartScreen() {
       </p>
 
       <div style={{ marginBottom: '15px', textAlign: 'center' }}>
-        <label style={{ fontSize: '12px', color: '#6d6c6c', display: 'block', marginBottom: '6px' }}>
+        <label style={{ fontSize: '14px', color: '#6d6c6c', display: 'block', marginBottom: '6px' }}>
           ENTER YOUR NAME
         </label>
         <input
           type="text"
           value={inputValue}
           onChange={handleChange}
+          onKeyDown={handleKeyDown}
           maxLength={MAX_LENGTH}
           placeholder="username"
           autoFocus
@@ -82,10 +90,10 @@ export function StartScreen() {
 
       {hasUsername ? (
         <p style={{ fontSize: '14px', color: '#6d6c6c', animation: 'blink 1.5s infinite', marginBottom: '10px' }}>
-          Press ARROW KEY or SPACE to start
+          Press ENTER to start
         </p>
       ) : (
-        <p style={{ fontSize: '11px', color: '#E55039', marginBottom: '10px' }}>
+        <p style={{ fontSize: '14px', color: '#E55039', marginBottom: '10px' }}>
           Username required to play
         </p>
       )}

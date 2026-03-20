@@ -36,6 +36,8 @@ export function HUD() {
     notifyCustomChange();
   };
 
+  const isEvenLevel = level % 2 === 0;
+
   return (
     <div style={{
       position: 'absolute',
@@ -59,6 +61,27 @@ export function HUD() {
         {'♡'.repeat(Math.max(0, STARTING_LIVES - lives))}
       </div>
       <div>FLOOR {level} / 10</div>
+
+      {/* Controls help — bottom left */}
+      <div style={{
+        position: 'absolute',
+        bottom: -120,
+        left: 28,
+        fontSize: '14px',
+        lineHeight: '2',
+        color: 'rgba(255,255,255,0.8)',
+        textShadow: '1px 1px 3px rgba(0,0,0,0.8)',
+      }}>
+        <div>ARROWS / WASD — Move</div>
+        <div>EAT ALL PELLETS — Next floor</div>
+        <div>POWER PELLET — Eat ghosts</div>
+        {isEvenLevel && (
+          <div style={{ color: '#F7B731', marginTop: '4px' }}>
+            ⚠ INVISIBLE WALLS!<br/>
+            They flash briefly every 15s
+          </div>
+        )}
+      </div>
 
       {/* Audio controls — stacked vertically on the right */}
       <div style={{

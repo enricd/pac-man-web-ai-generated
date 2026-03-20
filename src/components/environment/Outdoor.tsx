@@ -2,6 +2,7 @@ import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useTexture } from '@react-three/drei';
 import type { Group } from 'three';
+import { LeaderboardBillboard } from './LeaderboardBillboard';
 import {
   MAZE_WIDTH,
   MAZE_HEIGHT,
@@ -122,6 +123,243 @@ function CamperVan({ position }: { position: [number, number, number] }) {
           </mesh>
         )),
       )}
+    </group>
+  );
+}
+
+function Lamborghini({ position, color = '#F7B731' }: { position: [number, number, number]; color?: string }) {
+  return (
+    <group position={position}>
+      {/* Lower body — very flat and wide wedge base */}
+      <mesh position={[0, 0.12, 0]} castShadow>
+        <boxGeometry args={[1.8, 0.16, 0.95]} />
+        <meshStandardMaterial color={color} metalness={0.7} roughness={0.2} />
+      </mesh>
+      {/* Upper body — tapered toward front, sits on lower body */}
+      <mesh position={[-0.1, 0.24, 0]} castShadow>
+        <boxGeometry args={[1.5, 0.1, 0.9]} />
+        <meshStandardMaterial color={color} metalness={0.7} roughness={0.2} />
+      </mesh>
+      {/* Hood — slopes down toward front */}
+      <mesh position={[0.55, 0.26, 0]} rotation={[0, 0, -0.12]} castShadow>
+        <boxGeometry args={[0.6, 0.06, 0.88]} />
+        <meshStandardMaterial color={color} metalness={0.7} roughness={0.2} />
+      </mesh>
+      {/* Cabin — very small and low, set back */}
+      <mesh position={[-0.05, 0.35, 0]} castShadow>
+        <boxGeometry args={[0.55, 0.14, 0.7]} />
+        <meshStandardMaterial color={color} metalness={0.7} roughness={0.2} />
+      </mesh>
+      {/* Windshield — angled aggressively */}
+      <mesh position={[0.24, 0.33, 0]} rotation={[0, 0, 0.45]}>
+        <boxGeometry args={[0.22, 0.02, 0.65]} />
+        <meshStandardMaterial color="#0D47A1" metalness={0.9} roughness={0.05} />
+      </mesh>
+      {/* Rear window — angled back */}
+      <mesh position={[-0.33, 0.34, 0]} rotation={[0, 0, -0.35]}>
+        <boxGeometry args={[0.15, 0.02, 0.6]} />
+        <meshStandardMaterial color="#0D47A1" metalness={0.9} roughness={0.05} />
+      </mesh>
+      {/* Side windows */}
+      <mesh position={[-0.05, 0.36, 0.351]}>
+        <boxGeometry args={[0.45, 0.1, 0.01]} />
+        <meshStandardMaterial color="#0D47A1" metalness={0.9} roughness={0.05} />
+      </mesh>
+      <mesh position={[-0.05, 0.36, -0.351]}>
+        <boxGeometry args={[0.45, 0.1, 0.01]} />
+        <meshStandardMaterial color="#0D47A1" metalness={0.9} roughness={0.05} />
+      </mesh>
+      {/* Engine cover behind cabin — slightly raised */}
+      <mesh position={[-0.55, 0.28, 0]} castShadow>
+        <boxGeometry args={[0.5, 0.06, 0.85]} />
+        <meshStandardMaterial color={color} metalness={0.7} roughness={0.2} />
+      </mesh>
+      {/* Engine vents — black slats on rear */}
+      <mesh position={[-0.55, 0.26, 0.38]}>
+        <boxGeometry args={[0.35, 0.08, 0.02]} />
+        <meshStandardMaterial color="#212121" />
+      </mesh>
+      <mesh position={[-0.55, 0.26, -0.38]}>
+        <boxGeometry args={[0.35, 0.08, 0.02]} />
+        <meshStandardMaterial color="#212121" />
+      </mesh>
+      {/* Front air intake */}
+      <mesh position={[0.88, 0.1, 0]}>
+        <boxGeometry args={[0.06, 0.1, 0.7]} />
+        <meshStandardMaterial color="#212121" />
+      </mesh>
+      {/* Rear diffuser */}
+      <mesh position={[-0.88, 0.1, 0]}>
+        <boxGeometry args={[0.06, 0.1, 0.8]} />
+        <meshStandardMaterial color="#212121" />
+      </mesh>
+      {/* Rear spoiler on thin posts */}
+      <mesh position={[-0.78, 0.36, 0.3]}>
+        <boxGeometry args={[0.04, 0.08, 0.04]} />
+        <meshStandardMaterial color="#212121" />
+      </mesh>
+      <mesh position={[-0.78, 0.36, -0.3]}>
+        <boxGeometry args={[0.04, 0.08, 0.04]} />
+        <meshStandardMaterial color="#212121" />
+      </mesh>
+      <mesh position={[-0.78, 0.4, 0]} castShadow>
+        <boxGeometry args={[0.12, 0.03, 0.75]} />
+        <meshStandardMaterial color={color} metalness={0.7} roughness={0.2} />
+      </mesh>
+      {/* Headlights */}
+      <mesh position={[0.91, 0.18, 0.3]}>
+        <boxGeometry args={[0.02, 0.06, 0.15]} />
+        <meshStandardMaterial color="#FFF9C4" emissive="#FFF9C4" emissiveIntensity={0.3} />
+      </mesh>
+      <mesh position={[0.91, 0.18, -0.3]}>
+        <boxGeometry args={[0.02, 0.06, 0.15]} />
+        <meshStandardMaterial color="#FFF9C4" emissive="#FFF9C4" emissiveIntensity={0.3} />
+      </mesh>
+      {/* Taillights */}
+      <mesh position={[-0.91, 0.18, 0.35]}>
+        <boxGeometry args={[0.02, 0.05, 0.12]} />
+        <meshStandardMaterial color="#D32F2F" emissive="#D32F2F" emissiveIntensity={0.3} />
+      </mesh>
+      <mesh position={[-0.91, 0.18, -0.35]}>
+        <boxGeometry args={[0.02, 0.05, 0.12]} />
+        <meshStandardMaterial color="#D32F2F" emissive="#D32F2F" emissiveIntensity={0.3} />
+      </mesh>
+      {/* Wheels — low-profile, wide */}
+      {([-0.55, 0.55] as const).map((xOff) =>
+        ([-0.48, 0.48] as const).map((zOff) => (
+          <mesh key={`${xOff}_${zOff}`} position={[xOff, 0.08, zOff]}>
+            <boxGeometry args={[0.3, 0.16, 0.08]} />
+            <meshStandardMaterial color="#212121" />
+          </mesh>
+        )),
+      )}
+    </group>
+  );
+}
+
+function CargoTruck({ position, color = '#546E7A' }: { position: [number, number, number]; color?: string }) {
+  return (
+    <group position={position}>
+      {/* Cab */}
+      <mesh position={[0.65, 0.4, 0]} castShadow>
+        <boxGeometry args={[0.7, 0.7, 0.9]} />
+        <meshStandardMaterial color={color} />
+      </mesh>
+      {/* Cab windshield */}
+      <mesh position={[1.01, 0.45, 0]}>
+        <boxGeometry args={[0.01, 0.35, 0.7]} />
+        <meshStandardMaterial color="#B3E5FC" metalness={0.5} roughness={0.2} />
+      </mesh>
+      {/* Cab side windows */}
+      <mesh position={[0.65, 0.5, 0.451]}>
+        <boxGeometry args={[0.4, 0.25, 0.01]} />
+        <meshStandardMaterial color="#B3E5FC" metalness={0.5} roughness={0.2} />
+      </mesh>
+      <mesh position={[0.65, 0.5, -0.451]}>
+        <boxGeometry args={[0.4, 0.25, 0.01]} />
+        <meshStandardMaterial color="#B3E5FC" metalness={0.5} roughness={0.2} />
+      </mesh>
+      {/* Cargo box */}
+      <mesh position={[-0.3, 0.45, 0]} castShadow>
+        <boxGeometry args={[1.3, 0.8, 0.95]} />
+        <meshStandardMaterial color="#ECEFF1" />
+      </mesh>
+      {/* Cargo box trim */}
+      <mesh position={[-0.3, 0.1, 0]}>
+        <boxGeometry args={[1.3, 0.08, 0.96]} />
+        <meshStandardMaterial color="#37474F" />
+      </mesh>
+      {/* Wheels */}
+      {([-0.6, 0.6] as const).map((xOff) =>
+        ([-0.47, 0.47] as const).map((zOff) => (
+          <mesh key={`${xOff}_${zOff}`} position={[xOff, 0.12, zOff]}>
+            <boxGeometry args={[0.3, 0.24, 0.12]} />
+            <meshStandardMaterial color="#212121" />
+          </mesh>
+        )),
+      )}
+    </group>
+  );
+}
+
+function Bicycle({ position, rotation = [0, 0, 0] }: { position: [number, number, number]; rotation?: [number, number, number] }) {
+  const frameColor = '#C62828';
+  const metalColor = '#9E9E9E';
+  return (
+    <group position={position} rotation={rotation}>
+      {/* Rear wheel — thin ring approximated with 4 thin boxes forming a cross */}
+      <group position={[-0.28, 0.18, 0]}>
+        <mesh><boxGeometry args={[0.02, 0.32, 0.02]} /><meshStandardMaterial color="#333" /></mesh>
+        <mesh rotation={[0, 0, Math.PI / 2]}><boxGeometry args={[0.02, 0.32, 0.02]} /><meshStandardMaterial color="#333" /></mesh>
+        <mesh rotation={[0, 0, Math.PI / 4]}><boxGeometry args={[0.02, 0.32, 0.02]} /><meshStandardMaterial color="#333" /></mesh>
+        <mesh rotation={[0, 0, -Math.PI / 4]}><boxGeometry args={[0.02, 0.32, 0.02]} /><meshStandardMaterial color="#333" /></mesh>
+        {/* Hub */}
+        <mesh><boxGeometry args={[0.04, 0.04, 0.03]} /><meshStandardMaterial color={metalColor} /></mesh>
+      </group>
+      {/* Front wheel */}
+      <group position={[0.28, 0.18, 0]}>
+        <mesh><boxGeometry args={[0.02, 0.32, 0.02]} /><meshStandardMaterial color="#333" /></mesh>
+        <mesh rotation={[0, 0, Math.PI / 2]}><boxGeometry args={[0.02, 0.32, 0.02]} /><meshStandardMaterial color="#333" /></mesh>
+        <mesh rotation={[0, 0, Math.PI / 4]}><boxGeometry args={[0.02, 0.32, 0.02]} /><meshStandardMaterial color="#333" /></mesh>
+        <mesh rotation={[0, 0, -Math.PI / 4]}><boxGeometry args={[0.02, 0.32, 0.02]} /><meshStandardMaterial color="#333" /></mesh>
+        {/* Hub */}
+        <mesh><boxGeometry args={[0.04, 0.04, 0.03]} /><meshStandardMaterial color={metalColor} /></mesh>
+      </group>
+      {/* Top tube — rear hub to front steerer */}
+      <mesh position={[0, 0.32, 0]} rotation={[0, 0, 0.05]}>
+        <boxGeometry args={[0.5, 0.025, 0.025]} />
+        <meshStandardMaterial color={frameColor} />
+      </mesh>
+      {/* Down tube — front steerer down to bottom bracket */}
+      <mesh position={[0.12, 0.24, 0]} rotation={[0, 0, 0.5]}>
+        <boxGeometry args={[0.32, 0.025, 0.025]} />
+        <meshStandardMaterial color={frameColor} />
+      </mesh>
+      {/* Seat tube — bottom bracket up to seat */}
+      <mesh position={[-0.13, 0.26, 0]} rotation={[0, 0, -0.15]}>
+        <boxGeometry args={[0.025, 0.28, 0.025]} />
+        <meshStandardMaterial color={frameColor} />
+      </mesh>
+      {/* Chain stay — bottom bracket to rear axle */}
+      <mesh position={[-0.2, 0.15, 0]} rotation={[0, 0, -0.2]}>
+        <boxGeometry args={[0.22, 0.02, 0.02]} />
+        <meshStandardMaterial color={frameColor} />
+      </mesh>
+      {/* Seat stay — seat area to rear axle */}
+      <mesh position={[-0.2, 0.27, 0]} rotation={[0, 0, 0.65]}>
+        <boxGeometry args={[0.02, 0.28, 0.02]} />
+        <meshStandardMaterial color={frameColor} />
+      </mesh>
+      {/* Fork — steerer to front axle */}
+      <mesh position={[0.27, 0.26, 0]} rotation={[0, 0, -0.08]}>
+        <boxGeometry args={[0.02, 0.2, 0.02]} />
+        <meshStandardMaterial color={metalColor} />
+      </mesh>
+      {/* Handlebar stem */}
+      <mesh position={[0.26, 0.36, 0]}>
+        <boxGeometry args={[0.02, 0.06, 0.02]} />
+        <meshStandardMaterial color={metalColor} />
+      </mesh>
+      {/* Handlebars — bar extending to sides */}
+      <mesh position={[0.26, 0.39, 0]}>
+        <boxGeometry args={[0.06, 0.02, 0.22]} />
+        <meshStandardMaterial color="#212121" />
+      </mesh>
+      {/* Seat */}
+      <mesh position={[-0.12, 0.4, 0]}>
+        <boxGeometry args={[0.12, 0.02, 0.06]} />
+        <meshStandardMaterial color="#212121" />
+      </mesh>
+      {/* Pedal crank */}
+      <mesh position={[-0.05, 0.12, 0]}>
+        <boxGeometry args={[0.03, 0.08, 0.03]} />
+        <meshStandardMaterial color={metalColor} />
+      </mesh>
+      {/* Kickstand — angled out to the side */}
+      <mesh position={[-0.1, 0.07, 0.06]} rotation={[0.3, 0, 0.25]}>
+        <boxGeometry args={[0.02, 0.16, 0.02]} />
+        <meshStandardMaterial color={metalColor} />
+      </mesh>
     </group>
   );
 }
@@ -305,6 +543,9 @@ export function Outdoor() {
       [mazeW / 2 + 6, 0, mazeH / 2 - 3],
       [mazeW / 2 + 3, 0, -mazeH / 2 - 5],
       [mazeW / 2 + 2, 0, mazeH / 2 + 10],
+      // Back area of the building
+      [3, 0, -mazeH / 2 - 3],
+      [-2, 0, -mazeH / 2 - 5],
     ];
     return positions;
   }, [mazeW, mazeH]);
@@ -322,25 +563,38 @@ export function Outdoor() {
   const roadCenter = buildingEdge + sidewalkWidth + (parkingLaneWidth + drivingLaneWidth) / 2;
   const roadWidth = parkingLaneWidth + drivingLaneWidth;
 
-  // 9 parking slots: slots 2 and 6 empty, slot 4 is camper van
-  const numSlots = 9;
+  // 15 parking slots (3 extra each side): some empty, various vehicle types
+  // Types: 'car', 'camper', 'lambo', 'truck', null (empty)
+  const numSlots = 15;
   const spacing = 2.2;
   const startX = -((numSlots - 1) * spacing) / 2;
-  const emptySlots = new Set([2, 6]);
-  const camperSlot = 4;
-  const slotColors = [
-    CAR_COLORS[0], CAR_COLORS[1], null, CAR_COLORS[3], 'camper',
-    CAR_COLORS[0], null, CAR_COLORS[7], CAR_COLORS[3],
+  const slotDefs: { type: 'car' | 'camper' | 'lambo' | 'truck' | null; color: string }[] = [
+    { type: 'truck', color: '#546E7A' },     // 0: cargo truck
+    { type: 'car', color: CAR_COLORS[5] },   // 1: purple car
+    { type: null, color: '' },               // 2: empty
+    { type: 'car', color: CAR_COLORS[0] },   // 3: red
+    { type: 'car', color: CAR_COLORS[1] },   // 4: beige
+    { type: null, color: '' },               // 5: empty
+    { type: 'car', color: CAR_COLORS[3] },   // 6: yellow
+    { type: 'camper', color: '' },           // 7: camper van
+    { type: 'car', color: CAR_COLORS[0] },   // 8: red
+    { type: null, color: '' },               // 9: empty
+    { type: 'lambo', color: '#F7B731' },     // 10: lambo (gold)
+    { type: 'car', color: CAR_COLORS[7] },   // 11: dark
+    { type: 'car', color: CAR_COLORS[3] },   // 12: yellow
+    { type: null, color: '' },               // 13: empty
+    { type: 'car', color: CAR_COLORS[2] },   // 14: green
   ];
 
-  const cars = useMemo(() => {
-    const result: { position: [number, number, number]; color: string; isCamper: boolean }[] = [];
+  const vehicles = useMemo(() => {
+    const result: { position: [number, number, number]; type: string; color: string }[] = [];
     for (let i = 0; i < numSlots; i++) {
-      if (emptySlots.has(i)) continue;
+      const def = slotDefs[i];
+      if (!def.type) continue;
       result.push({
         position: [startX + i * spacing, 0, parkingCenter],
-        color: slotColors[i] === 'camper' ? '' : slotColors[i]!,
-        isCamper: i === camperSlot,
+        type: def.type,
+        color: def.color,
       });
     }
     return result;
@@ -431,14 +685,15 @@ export function Outdoor() {
         <meshStandardMaterial color="#BDBDBD" />
       </mesh>
 
-      {/* Cars and camper van */}
-      {cars.map((car, i) =>
-        car.isCamper ? (
-          <CamperVan key={`car-${i}`} position={car.position} />
-        ) : (
-          <Car key={`car-${i}`} position={car.position} color={car.color} />
-        ),
-      )}
+      {/* Vehicles */}
+      {vehicles.map((v, i) => {
+        switch (v.type) {
+          case 'camper': return <CamperVan key={`v-${i}`} position={v.position} />;
+          case 'lambo': return <Lamborghini key={`v-${i}`} position={v.position} color={v.color} />;
+          case 'truck': return <CargoTruck key={`v-${i}`} position={v.position} color={v.color} />;
+          default: return <Car key={`v-${i}`} position={v.position} color={v.color} />;
+        }
+      })}
 
       {/* Trees */}
       {trees.map((pos, i) => (
@@ -450,6 +705,15 @@ export function Outdoor() {
 
       {/* Billboard — right side of building, between grass and pavement */}
       <ErniBillboard position={[mazeW / 2 + 5, 0, buildingEdge + sidewalkWidth / 2 - 1]} />
+
+      {/* Leaderboard billboard — left side of building */}
+      <LeaderboardBillboard position={[-mazeW / 2 - 5, 0, buildingEdge + sidewalkWidth / 2 - 1]} />
+
+      {/* Bicycle leaning against the leaderboard billboard's right post */}
+      <Bicycle
+        position={[-mazeW / 2 - 5 + 6.75 / 2 - 0.15, 0, buildingEdge + sidewalkWidth / 2 - 1 + 0.25]}
+        rotation={[0, 0.3, 0.08]}
+      />
 
       {/* Dog wandering on the grass (right side of building) */}
       <Dog bounds={{
