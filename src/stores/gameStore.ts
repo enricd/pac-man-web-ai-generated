@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { GameState, GamePhase, Direction, GhostState, GhostName } from '../types/game';
 import type { MazeData, MazeGrid } from '../types/maze';
+import { submitScore } from '../api/leaderboard';
 import { generateMaze } from '../systems/mazeGenerator';
 import {
   STARTING_LIVES,
@@ -29,6 +30,8 @@ interface GameStore extends GameState {
   powerPelletSet: Set<string>;
   previousMaze: MazeData | null;
   completedFloors: MazeGrid[];
+  username: string;
+  gameStartTime: number | null;
 
   // Actions
   startGame: () => void;
@@ -39,6 +42,7 @@ interface GameStore extends GameState {
   tick: (delta: number) => void;
   restartGame: () => void;
   nextLevel: () => void;
+  setUsername: (name: string) => void;
 }
 
 const GHOST_NAMES: GhostName[] = ['blinky', 'pinky', 'inky', 'clyde'];
@@ -99,9 +103,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
   powerPelletSet: initialPellets.powerPelletSet,
   previousMaze: null,
   completedFloors: [],
+  username: '',
+  gameStartTime: null,
+
+  setUsername: (name: string) => {
+    set({ username: name });
+  },
 
   startGame: () => {
-    set({ phase: 'playing' });
+    set({ phase: 'playing', gameStartTime: Date.now() });
   },
 
   pauseGame: () => {
@@ -236,7 +246,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (collisionResult.livesLost) {
       const newLives = state.lives - 1;
       if (newLives <= 0) {
-        set({ phase: 'gameOver', lives: 0 });
+        const finalScore = state.score + collisionResult.score;
+        set({ phase: 'gameOver', lives: 0, score: finalScore });
+        const { username, gameStartTime } = state;
+        if (username && gameStartTime) {
+          submitScore({
+            username,
+            score: finalScore,
+            level_reached: state.level,
+            time_played_seconds: (Date.now() - gameStartTime) / 1000,
+          });
+        }
         return;
       }
       // Reset positions, keep score and pellets
@@ -358,6 +378,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     if (newLevel > MAX_LEVEL) {
       set({ phase: 'gameOver' }); // Win!
+      const { username, gameStartTime, score } = state;
+      if (username && gameStartTime) {
+        submitScore({
+          username,
+          score,
+          level_reached: MAX_LEVEL,
+          time_played_seconds: (Date.now() - gameStartTime) / 1000,
+        });
+      }
       return;
     }
 
@@ -408,6 +437,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     set({
       phase: 'start',
+      gameStartTime: null,
       level: 1,
       score: 0,
       lives: STARTING_LIVES,

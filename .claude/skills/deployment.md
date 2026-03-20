@@ -72,15 +72,38 @@ labels:
 
 ## compose.yml (Production)
 
+Two services with path-based Traefik routing:
+
 ```yaml
 services:
   web:
     image: ghcr.io/${GITHUB_REPOSITORY}:${TAG:-latest}
     restart: always
     labels:
-      # ... Traefik labels (see above)
+      # Route: Host AND NOT /api
+      - traefik.http.routers.${STACK_NAME}-web-https.rule=Host(`${APP_DOMAIN}`) && !PathPrefix(`/api`)
+      # ... TLS + redirect labels
     networks:
       - traefik-public
+
+  api:
+    image: ghcr.io/${GITHUB_REPOSITORY}-api:${TAG:-latest}
+    restart: always
+    volumes:
+      - leaderboard-data:/app/data   # SQLite persistence
+    labels:
+      # Route: Host AND /api
+      - traefik.http.routers.${STACK_NAME}-api-https.rule=Host(`${APP_DOMAIN}`) && PathPrefix(`/api`)
+      # Rate limiting middleware
+      - traefik.http.middlewares.${STACK_NAME}-api-ratelimit.ratelimit.average=100
+      - traefik.http.middlewares.${STACK_NAME}-api-ratelimit.ratelimit.burst=50
+      - traefik.http.routers.${STACK_NAME}-api-https.middlewares=${STACK_NAME}-api-ratelimit
+      # ... TLS + redirect labels
+    networks:
+      - traefik-public
+
+volumes:
+  leaderboard-data:
 
 networks:
   traefik-public:
@@ -88,9 +111,11 @@ networks:
 ```
 
 **Key details:**
-- Image from GHCR (built by GitHub Actions)
+- Two images from GHCR: `${REPO}:latest` (frontend) and `${REPO}-api:latest` (backend)
+- Path-based routing: `!PathPrefix(/api)` for web, `PathPrefix(/api)` for api — same origin, no CORS
+- Named volume `leaderboard-data` for SQLite persistence across deploys
+- Traefik rate limiting middleware on API router (100 avg, 50 burst)
 - `restart: always` for production
-- External `traefik-public` network
 - No port mapping (Traefik handles routing)
 
 ---
@@ -218,76 +243,40 @@ server {
 
 ## GitHub Actions Workflow
 
+Uses a **matrix strategy** to build both frontend and backend images in parallel:
+
 ```yaml
-name: Deploy
-
-on:
-  push:
-    branches: [main]
-
-permissions:
-  contents: read
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-
 jobs:
   build-and-push:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+    strategy:
+      matrix:
+        include:
+          - context: .            # Frontend: Dockerfile at repo root
+            image_suffix: ""
+          - context: backend      # Backend: backend/Dockerfile
+            image_suffix: "-api"
     steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      # ... checkout, buildx, login ...
       - uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ${{ matrix.context }}
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: ghcr.io/${{ env.IMAGE_NAME }}${{ matrix.image_suffix }}:latest
+          cache-from: type=gha,scope=${{ matrix.context }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.context }}
 
   deploy:
     needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Copy compose file
-        uses: appleboy/scp-action@v1
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: compose.yml
-          target: ${{ secrets.WORK_DIR }}
-      - name: Deploy app
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd ${{ secrets.WORK_DIR }}
-            docker compose -p ${{ secrets.PROJECT_NAME }} -f compose.yml pull
-            docker compose -p ${{ secrets.PROJECT_NAME }} -f compose.yml up -d --remove-orphans
-            docker image prune -f
+    # ... SCP compose.yml, SSH docker compose pull && up -d ...
 ```
 
 **Key details:**
-- `docker/setup-buildx-action@v3` — enables BuildKit features (required for GHA cache)
-- GHA cache (`cache-from/to: type=gha`) — faster rebuilds. `mode=max` exports ALL layers (not just final stage), maximizing cache hits for multi-stage builds. 10GB limit per repo.
-- `context: .` requires `actions/checkout@v4` first (without it, BuildKit fetches repo directly via git context)
-- `-p $PROJECT_NAME` — isolates containers in their own project namespace
-- `docker image prune -f` — clean up old images
+- Matrix builds both images in parallel: `${REPO}:latest` and `${REPO}-api:latest`
+- `scope` parameter separates GHA cache for each image (otherwise they'd collide)
+- `context: backend` auto-finds `backend/Dockerfile` (no `file:` param needed)
+- `mode=max` exports ALL layers for multi-stage builds
+- Deploy step unchanged — `docker compose pull && up -d` handles both services
 - Only copies `compose.yml` (not .env — .env is managed on VPS)
-- `appleboy/scp-action@v1` and `appleboy/ssh-action@v1` (latest stable)
 
 **Required GitHub Secrets:**
 

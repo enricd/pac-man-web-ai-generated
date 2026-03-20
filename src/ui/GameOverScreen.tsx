@@ -1,12 +1,26 @@
+import { useState, useEffect } from 'react';
 import { useGameStore } from '../stores/gameStore';
+import { fetchLeaderboard, type ScoreResponse } from '../api/leaderboard';
+import { Leaderboard } from './Leaderboard';
 import { MAX_LEVEL } from '../utils/constants';
 
 export function GameOverScreen() {
   const score = useGameStore(s => s.score);
   const level = useGameStore(s => s.level);
   const lives = useGameStore(s => s.lives);
+  const username = useGameStore(s => s.username);
 
   const isWin = level > MAX_LEVEL || (level === MAX_LEVEL && lives > 0);
+
+  const [scores, setScores] = useState<ScoreResponse[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchLeaderboard().then(data => {
+      setScores(data);
+      setLoading(false);
+    });
+  }, []);
 
   return (
     <div style={{
@@ -30,7 +44,10 @@ export function GameOverScreen() {
       <p style={{ fontSize: '12px', color: '#999', marginBottom: '20px' }}>
         Reached Floor {level}
       </p>
-      <p style={{ fontSize: '12px', color: '#999', animation: 'blink 1.5s infinite' }}>
+
+      <Leaderboard scores={scores} loading={loading} highlightUsername={username} />
+
+      <p style={{ fontSize: '12px', color: '#999', animation: 'blink 1.5s infinite', marginTop: '15px' }}>
         Press SPACE to restart
       </p>
       <style>{`

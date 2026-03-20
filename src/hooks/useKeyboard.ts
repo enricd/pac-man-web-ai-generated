@@ -35,7 +35,9 @@ export function useKeyboard(): void {
       if (dir) {
         e.preventDefault();
         if (phase === 'start') {
-          startGame();
+          if (useGameStore.getState().username) {
+            startGame();
+          }
         }
 
         // If this key is already held (repeat event), check if hold duration exceeds threshold
@@ -64,7 +66,9 @@ export function useKeyboard(): void {
         if (phase === 'gameOver') {
           restartGame();
         } else if (phase === 'start') {
-          startGame();
+          if (useGameStore.getState().username) {
+            startGame();
+          }
         }
       }
 

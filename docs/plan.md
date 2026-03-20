@@ -259,6 +259,7 @@ Each doc teaches the concepts needed for that phase of the game. Written for a b
 | 09 | `09-pellets-scoring-collisions.md` | Collision detection, Set-based lookups, scoring, power pellet state, game phases | DONE |
 | 10 | `10-level-progression.md` | Level transitions, difficulty scaling, invisible walls, elevator mechanic | DONE |
 | 11 | `11-deployment.md` | Docker multi-stage, nginx SPA config, Traefik, GitHub Actions CI/CD, env vars | DONE |
+| 12 | `12-leaderboard-backend.md` | localStorage, Fetch API, async/await, useEffect data fetching, FastAPI, rate limiting, anti-cheat | DONE |
 
 ---
 
@@ -270,4 +271,5 @@ Each doc teaches the concepts needed for that phase of the game. Written for a b
 - [ ] **Phase 3**: 4 colored ghosts chase with distinct behaviors; power pellet makes them edible
 - [ ] **Phase 4**: Completing a level opens elevator; next floor loads with new maze
 - [ ] **Phase 5**: Even levels have invisible walls that flash; teleport works at edges
+- [ ] **Leaderboard**: Backend starts, endpoints work, username required, leaderboard shows on both screens
 - [ ] **Deployment**: Push to main → GitHub Actions builds & deploys → `pacman.enricd.com` serves the game

@@ -1,8 +1,9 @@
 node_modules
 dist
+backend
 .git
-.github
-docs
 .claude
+docs
 *.md
-!package*.json
+.env
+.env.example

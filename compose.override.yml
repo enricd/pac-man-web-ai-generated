@@ -33,6 +33,15 @@ services:
       - "3000:80"
     labels: []
 
+  api:
+    build: backend
+    restart: "no"
+    ports:
+      - "8000:8000"
+    labels: []
+    volumes:
+      - leaderboard-data:/app/data
+
 networks:
   traefik-public:
     external: false
