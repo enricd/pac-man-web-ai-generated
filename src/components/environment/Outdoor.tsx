@@ -127,28 +127,28 @@ function CamperVan({ position }: { position: [number, number, number] }) {
   );
 }
 
-function Lamborghini({ position, color = '#F7B731' }: { position: [number, number, number]; color?: string }) {
+function Lamborghini({ position, color = '#FF6D00' }: { position: [number, number, number]; color?: string }) {
   return (
     <group position={position}>
       {/* Lower body — very flat and wide wedge base */}
       <mesh position={[0, 0.12, 0]} castShadow>
         <boxGeometry args={[1.8, 0.16, 0.95]} />
-        <meshStandardMaterial color={color} metalness={0.7} roughness={0.2} />
+        <meshStandardMaterial color={color} metalness={0.85} roughness={0.08} />
       </mesh>
       {/* Upper body — tapered toward front, sits on lower body */}
       <mesh position={[-0.1, 0.24, 0]} castShadow>
         <boxGeometry args={[1.5, 0.1, 0.9]} />
-        <meshStandardMaterial color={color} metalness={0.7} roughness={0.2} />
+        <meshStandardMaterial color={color} metalness={0.85} roughness={0.08} />
       </mesh>
       {/* Hood — slopes down toward front */}
       <mesh position={[0.55, 0.26, 0]} rotation={[0, 0, -0.12]} castShadow>
         <boxGeometry args={[0.6, 0.06, 0.88]} />
-        <meshStandardMaterial color={color} metalness={0.7} roughness={0.2} />
+        <meshStandardMaterial color={color} metalness={0.85} roughness={0.08} />
       </mesh>
       {/* Cabin — very small and low, set back */}
       <mesh position={[-0.05, 0.35, 0]} castShadow>
         <boxGeometry args={[0.55, 0.14, 0.7]} />
-        <meshStandardMaterial color={color} metalness={0.7} roughness={0.2} />
+        <meshStandardMaterial color={color} metalness={0.85} roughness={0.08} />
       </mesh>
       {/* Windshield — angled aggressively */}
       <mesh position={[0.24, 0.33, 0]} rotation={[0, 0, 0.45]}>
@@ -172,7 +172,7 @@ function Lamborghini({ position, color = '#F7B731' }: { position: [number, numbe
       {/* Engine cover behind cabin — slightly raised */}
       <mesh position={[-0.55, 0.28, 0]} castShadow>
         <boxGeometry args={[0.5, 0.06, 0.85]} />
-        <meshStandardMaterial color={color} metalness={0.7} roughness={0.2} />
+        <meshStandardMaterial color={color} metalness={0.85} roughness={0.08} />
       </mesh>
       {/* Engine vents — black slats on rear */}
       <mesh position={[-0.55, 0.26, 0.38]}>
@@ -204,7 +204,7 @@ function Lamborghini({ position, color = '#F7B731' }: { position: [number, numbe
       </mesh>
       <mesh position={[-0.78, 0.4, 0]} castShadow>
         <boxGeometry args={[0.12, 0.03, 0.75]} />
-        <meshStandardMaterial color={color} metalness={0.7} roughness={0.2} />
+        <meshStandardMaterial color={color} metalness={0.85} roughness={0.08} />
       </mesh>
       {/* Headlights */}
       <mesh position={[0.91, 0.18, 0.3]}>
@@ -283,82 +283,57 @@ function CargoTruck({ position, color = '#546E7A' }: { position: [number, number
 }
 
 function Bicycle({ position, rotation = [0, 0, 0] }: { position: [number, number, number]; rotation?: [number, number, number] }) {
-  const frameColor = '#C62828';
-  const metalColor = '#9E9E9E';
   return (
-    <group position={position} rotation={rotation}>
-      {/* Rear wheel — thin ring approximated with 4 thin boxes forming a cross */}
-      <group position={[-0.28, 0.18, 0]}>
-        <mesh><boxGeometry args={[0.02, 0.32, 0.02]} /><meshStandardMaterial color="#333" /></mesh>
-        <mesh rotation={[0, 0, Math.PI / 2]}><boxGeometry args={[0.02, 0.32, 0.02]} /><meshStandardMaterial color="#333" /></mesh>
-        <mesh rotation={[0, 0, Math.PI / 4]}><boxGeometry args={[0.02, 0.32, 0.02]} /><meshStandardMaterial color="#333" /></mesh>
-        <mesh rotation={[0, 0, -Math.PI / 4]}><boxGeometry args={[0.02, 0.32, 0.02]} /><meshStandardMaterial color="#333" /></mesh>
-        {/* Hub */}
-        <mesh><boxGeometry args={[0.04, 0.04, 0.03]} /><meshStandardMaterial color={metalColor} /></mesh>
-      </group>
+    <group position={position} rotation={rotation} scale={1.1}>
+      {/* Rear wheel — simple thick disc */}
+      <mesh position={[-0.35, 0.22, 0]}>
+        <boxGeometry args={[0.38, 0.38, 0.055]} />
+        <meshStandardMaterial color="#333" />
+      </mesh>
       {/* Front wheel */}
-      <group position={[0.28, 0.18, 0]}>
-        <mesh><boxGeometry args={[0.02, 0.32, 0.02]} /><meshStandardMaterial color="#333" /></mesh>
-        <mesh rotation={[0, 0, Math.PI / 2]}><boxGeometry args={[0.02, 0.32, 0.02]} /><meshStandardMaterial color="#333" /></mesh>
-        <mesh rotation={[0, 0, Math.PI / 4]}><boxGeometry args={[0.02, 0.32, 0.02]} /><meshStandardMaterial color="#333" /></mesh>
-        <mesh rotation={[0, 0, -Math.PI / 4]}><boxGeometry args={[0.02, 0.32, 0.02]} /><meshStandardMaterial color="#333" /></mesh>
-        {/* Hub */}
-        <mesh><boxGeometry args={[0.04, 0.04, 0.03]} /><meshStandardMaterial color={metalColor} /></mesh>
-      </group>
-      {/* Top tube — rear hub to front steerer */}
-      <mesh position={[0, 0.32, 0]} rotation={[0, 0, 0.05]}>
-        <boxGeometry args={[0.5, 0.025, 0.025]} />
-        <meshStandardMaterial color={frameColor} />
+      <mesh position={[0.35, 0.22, 0]}>
+        <boxGeometry args={[0.38, 0.38, 0.055]} />
+        <meshStandardMaterial color="#333" />
       </mesh>
-      {/* Down tube — front steerer down to bottom bracket */}
-      <mesh position={[0.12, 0.24, 0]} rotation={[0, 0, 0.5]}>
-        <boxGeometry args={[0.32, 0.025, 0.025]} />
-        <meshStandardMaterial color={frameColor} />
+      {/* Frame — single diagonal bar connecting wheels */}
+      <mesh position={[0, 0.36, 0]} rotation={[0, 0, 0.08]}>
+        <boxGeometry args={[0.6, 0.06, 0.05]} />
+        <meshStandardMaterial color="#C62828" />
       </mesh>
-      {/* Seat tube — bottom bracket up to seat */}
-      <mesh position={[-0.13, 0.26, 0]} rotation={[0, 0, -0.15]}>
-        <boxGeometry args={[0.025, 0.28, 0.025]} />
-        <meshStandardMaterial color={frameColor} />
+      {/* Down bar — front wheel to bottom */}
+      <mesh position={[0.18, 0.28, 0]} rotation={[0, 0, 0.6]}>
+        <boxGeometry args={[0.3, 0.06, 0.05]} />
+        <meshStandardMaterial color="#C62828" />
       </mesh>
-      {/* Chain stay — bottom bracket to rear axle */}
-      <mesh position={[-0.2, 0.15, 0]} rotation={[0, 0, -0.2]}>
-        <boxGeometry args={[0.22, 0.02, 0.02]} />
-        <meshStandardMaterial color={frameColor} />
+      {/* Rear bar — seat to rear wheel */}
+      <mesh position={[-0.22, 0.28, 0]} rotation={[0, 0, -0.55]}>
+        <boxGeometry args={[0.3, 0.05, 0.05]} />
+        <meshStandardMaterial color="#C62828" />
       </mesh>
-      {/* Seat stay — seat area to rear axle */}
-      <mesh position={[-0.2, 0.27, 0]} rotation={[0, 0, 0.65]}>
-        <boxGeometry args={[0.02, 0.28, 0.02]} />
-        <meshStandardMaterial color={frameColor} />
-      </mesh>
-      {/* Fork — steerer to front axle */}
-      <mesh position={[0.27, 0.26, 0]} rotation={[0, 0, -0.08]}>
-        <boxGeometry args={[0.02, 0.2, 0.02]} />
-        <meshStandardMaterial color={metalColor} />
-      </mesh>
-      {/* Handlebar stem */}
-      <mesh position={[0.26, 0.36, 0]}>
-        <boxGeometry args={[0.02, 0.06, 0.02]} />
-        <meshStandardMaterial color={metalColor} />
-      </mesh>
-      {/* Handlebars — bar extending to sides */}
-      <mesh position={[0.26, 0.39, 0]}>
-        <boxGeometry args={[0.06, 0.02, 0.22]} />
-        <meshStandardMaterial color="#212121" />
+      {/* Seat post */}
+      <mesh position={[-0.08, 0.46, 0]}>
+        <boxGeometry args={[0.05, 0.14, 0.05]} />
+        <meshStandardMaterial color="#C62828" />
       </mesh>
       {/* Seat */}
-      <mesh position={[-0.12, 0.4, 0]}>
-        <boxGeometry args={[0.12, 0.02, 0.06]} />
+      <mesh position={[-0.08, 0.54, 0]}>
+        <boxGeometry args={[0.16, 0.04, 0.1]} />
         <meshStandardMaterial color="#212121" />
       </mesh>
-      {/* Pedal crank */}
-      <mesh position={[-0.05, 0.12, 0]}>
-        <boxGeometry args={[0.03, 0.08, 0.03]} />
-        <meshStandardMaterial color={metalColor} />
+      {/* Fork */}
+      <mesh position={[0.34, 0.36, 0]}>
+        <boxGeometry args={[0.05, 0.22, 0.05]} />
+        <meshStandardMaterial color="#9E9E9E" />
       </mesh>
-      {/* Kickstand — angled out to the side */}
-      <mesh position={[-0.1, 0.07, 0.06]} rotation={[0.3, 0, 0.25]}>
-        <boxGeometry args={[0.02, 0.16, 0.02]} />
-        <meshStandardMaterial color={metalColor} />
+      {/* Handlebars */}
+      <mesh position={[0.34, 0.5, 0]}>
+        <boxGeometry args={[0.08, 0.04, 0.3]} />
+        <meshStandardMaterial color="#212121" />
+      </mesh>
+      {/* Kickstand */}
+      <mesh position={[-0.05, 0.1, 0.08]} rotation={[0.3, 0, 0.25]}>
+        <boxGeometry args={[0.03, 0.24, 0.03]} />
+        <meshStandardMaterial color="#9E9E9E" />
       </mesh>
     </group>
   );
@@ -579,7 +554,7 @@ export function Outdoor() {
     { type: 'camper', color: '' },           // 7: camper van
     { type: 'car', color: CAR_COLORS[0] },   // 8: red
     { type: null, color: '' },               // 9: empty
-    { type: 'lambo', color: '#F7B731' },     // 10: lambo (gold)
+    { type: 'lambo', color: '#FF6D00' },     // 10: lambo (orange)
     { type: 'car', color: CAR_COLORS[7] },   // 11: dark
     { type: 'car', color: CAR_COLORS[3] },   // 12: yellow
     { type: null, color: '' },               // 13: empty
